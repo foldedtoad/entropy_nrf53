@@ -1,0 +1,26 @@
+#
+#
+#
+
+module = APP
+module-str = APP
+
+config SUPPORT_APP_RPC
+	bool "Support for App RPC"
+	default y
+
+config APP_RPC
+	bool "Enable App RPC"
+	default y
+	depends on SUPPORT_APP_RPC
+	select NRF_RPC
+	select NRF_RPC_CBOR
+
+menu "nRF RPC Libraries"
+source "$srctree/../../entropy_nrf53/nrf_rpc_1/Kconfig"
+source "$srctree/../../entropy_nrf53/nrf_rpc_2/Kconfig"
+endmenu
+
+menu "Zephyr"
+source "Kconfig.zephyr"
+endmenu
