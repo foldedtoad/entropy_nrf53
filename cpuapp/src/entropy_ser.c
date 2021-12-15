@@ -12,6 +12,8 @@
 
 #include "../../common_ids.h"
 
+#include <logging/log.h>
+LOG_MODULE_REGISTER(entropy_ser, 3);
 
 #define CBOR_BUF_SIZE 16
 
@@ -110,9 +112,13 @@ int entropy_remote_get(uint8_t *buffer, size_t length)
 		return -NRF_EINVAL;
 	}
 
+	LOG_INF("%s: buffer(%p), length(%d)", __func__, buffer, length);  // robin
+
 	NRF_RPC_CBOR_ALLOC(ctx, CBOR_BUF_SIZE);
 
 	cbor_encode_int(&ctx.encoder, length);
+
+	LOG_INF("entropy_group: %p", &entropy_group);  // robin
 
 	err = nrf_rpc_cbor_cmd(&entropy_group, RPC_COMMAND_ENTROPY_GET, &ctx,
 			       entropy_get_rsp, &result);
@@ -290,7 +296,7 @@ NRF_RPC_CBOR_EVT_DECODER(entropy_group, entropy_get_async_result,
 
 static void err_handler(const struct nrf_rpc_err_report *report)
 {
-	printk("nRF RPC error %d ocurred. See nRF RPC logs for more details.",
+	LOG_ERR("nRF RPC error %d ocurred. See nRF RPC logs for more details.",
 	       report->code);
 	k_oops();
 }
@@ -302,14 +308,14 @@ static int serialization_init(const struct device *dev)
 
 	int err;
 
-	printk("Init begin\n");
+	LOG_INF("Init begin");
 
 	err = nrf_rpc_init(err_handler);
 	if (err) {
 		return -NRF_EINVAL;
 	}
 
-	printk("Init done\n");
+	LOG_INF("Init done");
 
 	return 0;
 }

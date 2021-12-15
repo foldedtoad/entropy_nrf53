@@ -10,74 +10,63 @@
 
 #include "entropy_ser.h"
 
+#include <logging/log.h>
+LOG_MODULE_REGISTER(main, 3);
+
 #define BUFFER_LENGTH 10
 
 static uint8_t buffer[BUFFER_LENGTH];
 
 static void result_callback(int result, uint8_t *buffer, size_t length)
 {
-	size_t i;
-
 	if (result) {
-		printk("Entropy remote get failed: %d\n", result);
+		LOG_ERR("Entropy remote get failed: %d", result);
 		return;
 	}
 
-	for (i = 0; i < length; i++) {
-		printk("  0x%02x", buffer[i]);
-	}
-
-	printk("\n");
+	LOG_HEXDUMP_INF(buffer, sizeof(buffer), "");
 }
 
 void main(void)
 {
 	int err;
 
-	printk("Entropy sample started[APP Core].\n");
+	LOG_INF("Entropy sample started [APP Core].");
 
 	err = entropy_remote_init();
 	if (err) {
-		printk("Remote entropy driver initialization failed\n");
+		LOG_ERR("Remote entropy driver initialization failed.");
 		return;
 	}
 
-	printk("Remote init send\n");
+	LOG_INF("Remote init send.");
 
 	while (true) {
 		k_sleep(K_MSEC(2000));
 
 		err = entropy_remote_get(buffer, sizeof(buffer));
 		if (err) {
-			printk("Entropy remote get failed: %d\n", err);
+			LOG_ERR("Entropy remote get failed: %d.", err);
 			continue;
 		}
 
-		for (int i = 0; i < BUFFER_LENGTH; i++) {
-			printk("  0x%02x", buffer[i]);
-		}
-
-		printk("\n");
+		LOG_HEXDUMP_INF(buffer, sizeof(buffer), "");
 
 		k_sleep(K_MSEC(2000));
 
 		err = entropy_remote_get_inline(buffer, sizeof(buffer));
 		if (err) {
-			printk("Entropy remote get failed: %d\n", err);
+			LOG_ERR("Entropy remote get failed: %d.", err);
 			continue;
 		}
 
-		for (int i = 0; i < BUFFER_LENGTH; i++) {
-			printk("  0x%02x", buffer[i]);
-		}
-
-		printk("\n");
+		LOG_HEXDUMP_INF(buffer, sizeof(buffer), "");
 
 		k_sleep(K_MSEC(2000));
 
 		err = entropy_remote_get_async(sizeof(buffer), result_callback);
 		if (err) {
-			printk("Entropy remote get async failed: %d\n", err);
+			LOG_ERR("Entropy remote get async failed: %d.", err);
 			continue;
 		}
 
@@ -85,7 +74,7 @@ void main(void)
 
 		err = entropy_remote_get_cbk(sizeof(buffer), result_callback);
 		if (err) {
-			printk("Entropy remote get callback failed: %d\n", err);
+			LOG_ERR("Entropy remote get callback failed: %d.", err);
 			continue;
 		}
 	}
