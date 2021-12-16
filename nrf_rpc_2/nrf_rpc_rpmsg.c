@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#define NRF_RPC_LOG_MODULE NRF_RPC_TR
-#include <nrf_rpc_log.h>
-
 #include <zephyr.h>
 #include <errno.h>
 #include <metal/sys.h>
@@ -19,16 +16,8 @@
 #include "nrf_rpc.h"
 #include "nrf_rpc_rpmsg.h"
 
-/* Utility macro for dumping content of the packets with limit of 32 bytes
- * to prevent overflowing the logs.
- */
-#define DUMP_LIMITED_DBG(memory, len, text) do {			       \
-	if ((len) > 32) {						       \
-		NRF_RPC_DUMP_DBG(memory, 32, text " (truncated)");	       \
-	} else {							       \
-		NRF_RPC_DUMP_DBG(memory, (len), text);			       \
-	}								       \
-} while (0)
+#include <logging/log.h>
+LOG_MODULE_REGISTER(NRF_RPC_TR, 3);
 
 
 /* Asynchronous event notification type */
@@ -75,7 +64,7 @@ static void event_handler(enum nrf_rpc_event_type event,
 				const uint8_t *buf, size_t length)
 {
 	if (event == NRF_RPC_EVENT_CONNECTED) {
-		NRF_RPC_DBG("nRF RPC Connected");
+		LOG_INF("nRF RPC Connected");
 		k_sem_give(&handshake_sem);
 		return;
 	} else if (event != NRF_RPC_EVENT_DATA) {
@@ -84,7 +73,7 @@ static void event_handler(enum nrf_rpc_event_type event,
 
 	NRF_RPC_ASSERT(buf != NULL);
 
-	DUMP_LIMITED_DBG(buf, length, "Received data");
+	LOG_HEXDUMP_INF(buf, length, "Received data");
 
 	receive_callback(buf, length);
 }
@@ -99,7 +88,7 @@ static int endpoint_cb(struct rpmsg_endpoint *ept, void *data, size_t len,
 			}
 			rpmsg_service_send(endpoint_id, (uint8_t *)"", 0);
 			is_handshake_done = true;
-			NRF_RPC_INF("Handshake done");
+			LOG_INF("Handshake done");
 			event_handler(NRF_RPC_EVENT_CONNECTED, NULL, 0);
 		}
 		return RPMSG_SUCCESS;
@@ -119,7 +108,7 @@ static int nrf_rpc_register_endpoint(const struct device *dev)
 	endpoint_id = err;
 
 	if (err < 0) {
-		NRF_RPC_ERR("Registering endpoint failed with %d", err);
+		LOG_ERR("Registering endpoint failed with %d", err);
 		return err;
 	}
 
@@ -132,14 +121,14 @@ int nrf_rpc_tr_init(nrf_rpc_tr_receive_handler_t callback)
 	receive_callback = callback;
 
 	if (IS_ENABLED(CONFIG_RPMSG_SERVICE_MODE_MASTER)) {
-		NRF_RPC_INF("RPC master");
+		LOG_INF("RPC Master");
 		while (!rpmsg_service_endpoint_is_bound(endpoint_id)) {
 			k_sleep(K_MSEC(1));
 		}
 
 		rpmsg_service_send(endpoint_id, (uint8_t *)"", 0);
 	} else {
-		NRF_RPC_INF("RPC remote");
+		LOG_INF("RPC Remote");
 		k_sem_give(&remote_init_sem);
 	}
 
@@ -157,8 +146,9 @@ int nrf_rpc_tr_send(uint8_t *buf, size_t len)
 	int err;
 
 	NRF_RPC_ASSERT(buf != NULL);
-	NRF_RPC_DBG("Send %u bytes.", len);
-	DUMP_LIMITED_DBG(buf, len, "Data:");
+	LOG_INF("Send %u bytes.", len);
+	LOG_HEXDUMP_INF(buf, len, "Data:");
+
 
 	err = rpmsg_service_send(endpoint_id, buf, len);
 	if (err > 0) {

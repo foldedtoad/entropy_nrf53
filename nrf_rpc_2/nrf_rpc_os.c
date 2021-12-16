@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#define NRF_RPC_LOG_MODULE NRF_RPC_OS
-#include <nrf_rpc_log.h>
-
 #include "nrf_rpc_os.h"
+
+#include <logging/log.h>
+LOG_MODULE_REGISTER(NRF_RPC_OS, 3);
 
 /* Maximum number of remote thread that this implementation allows. */
 #define MAX_REMOTE_THREADS 255
@@ -156,7 +156,7 @@ void nrf_rpc_os_remote_count(int count)
 	__ASSERT_NO_MSG(count > 0);
 	__ASSERT_NO_MSG(count <= MAX_REMOTE_THREADS);
 
-	NRF_RPC_DBG("Remote thread count changed from %d to %d",
+	LOG_DBG("Remote thread count changed from %d to %d",
 		    remote_thread_total, count);
 
 	while ((int)remote_thread_total < count) {

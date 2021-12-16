@@ -6,6 +6,9 @@
 
 #include <zephyr.h>
 
+#include <logging/log.h>
+LOG_MODULE_REGISTER(net_main, 3);
+
 void main(void)
 {
 	/* The only activity of this application is interaction with the APP
@@ -13,5 +16,5 @@ void main(void)
 	 * The necessary handlers are registered through nRF RPC interface
 	 * and start at system boot.
 	 */
-	printk("Entropy sample started[NET Core].\n");
+	LOG_INF("Entropy sample started [NET Core].");
 }

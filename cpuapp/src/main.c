@@ -11,7 +11,7 @@
 #include "entropy_ser.h"
 
 #include <logging/log.h>
-LOG_MODULE_REGISTER(main, 3);
+LOG_MODULE_REGISTER(app_main, 3);
 
 #define BUFFER_LENGTH 10
 
@@ -44,6 +44,7 @@ void main(void)
 	while (true) {
 		k_sleep(K_MSEC(2000));
 
+		LOG_INF("entropy_remote_get");
 		err = entropy_remote_get(buffer, sizeof(buffer));
 		if (err) {
 			LOG_ERR("Entropy remote get failed: %d.", err);
@@ -54,6 +55,7 @@ void main(void)
 
 		k_sleep(K_MSEC(2000));
 
+		LOG_INF("entropy_remote_get_inline");
 		err = entropy_remote_get_inline(buffer, sizeof(buffer));
 		if (err) {
 			LOG_ERR("Entropy remote get failed: %d.", err);
@@ -64,6 +66,7 @@ void main(void)
 
 		k_sleep(K_MSEC(2000));
 
+		LOG_INF("entropy_remote_get_async");
 		err = entropy_remote_get_async(sizeof(buffer), result_callback);
 		if (err) {
 			LOG_ERR("Entropy remote get async failed: %d.", err);
@@ -72,6 +75,7 @@ void main(void)
 
 		k_sleep(K_MSEC(2000));
 
+		LOG_INF("entropy_remote_get_cbk");
 		err = entropy_remote_get_cbk(sizeof(buffer), result_callback);
 		if (err) {
 			LOG_ERR("Entropy remote get callback failed: %d.", err);

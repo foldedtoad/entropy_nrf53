@@ -13,7 +13,7 @@
 #include "../../common_ids.h"
 
 #include <logging/log.h>
-LOG_MODULE_REGISTER(entropy_ser, 3);
+LOG_MODULE_REGISTER(app_entropy_ser, 3);
 
 #define CBOR_BUF_SIZE 16
 
@@ -294,12 +294,24 @@ NRF_RPC_CBOR_EVT_DECODER(entropy_group, entropy_get_async_result,
 			 entropy_get_result_handler, NULL);
 
 
+#if 0
 static void err_handler(const struct nrf_rpc_err_report *report)
 {
 	LOG_ERR("nRF RPC error %d ocurred. See nRF RPC logs for more details.",
 	       report->code);
 	k_oops();
 }
+#else
+static void err_handler(const struct nrf_rpc_err_report *report)
+{
+	LOG_ERR("nRF RPC error %d ocurred. See nRF RPC logs for more details.",
+	       report->code);
+	LOG_ERR("spin halt.");
+	while (1) {
+		k_sleep(K_MSEC(2000));
+	}
+}
+#endif
 
 
 static int serialization_init(const struct device *dev)
@@ -308,14 +320,14 @@ static int serialization_init(const struct device *dev)
 
 	int err;
 
-	LOG_INF("Init begin");
+	LOG_INF("Init begin.");
 
 	err = nrf_rpc_init(err_handler);
 	if (err) {
 		return -NRF_EINVAL;
 	}
 
-	LOG_INF("Init done");
+	LOG_INF("Init done.");
 
 	return 0;
 }

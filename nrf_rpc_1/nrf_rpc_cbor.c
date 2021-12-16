@@ -3,8 +3,6 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-#define NRF_RPC_LOG_MODULE NRF_RPC_CBOR
-#include <nrf_rpc_log.h>
 
 #include <stdint.h>
 #include <stddef.h>
@@ -12,6 +10,9 @@
 #include <nrf_rpc.h>
 #include <nrf_rpc_cbor.h>
 #include <nrf_rpc_common.h>
+
+#include <logging/log.h>
+LOG_MODULE_REGISTER(NRF_RPC_CBOR, 3);
 
 struct handler_proxy_ctx {
 	CborValue value;
@@ -58,8 +59,10 @@ int nrf_rpc_cbor_cmd(const struct nrf_rpc_group *group, uint8_t cmd,
 		.decoding_done_required = false,
 	};
 
+	LOG_INF("%s", __func__);  // robin
 	if (cbor_encode_null(&ctx->encoder) != CborNoError) {
 		NRF_RPC_CBOR_DISCARD(*ctx);
+		LOG_ERR("cbor_encode_null failed");
 		return -NRF_ENOMEM;
 	}
 
@@ -113,7 +116,7 @@ void nrf_rpc_cbor_cmd_no_err(const struct nrf_rpc_group *group, uint8_t cmd,
 
 	err = nrf_rpc_cbor_cmd(group, cmd, ctx, handler, handler_data);
 	if (err < 0) {
-		NRF_RPC_ERR("Unhandled command send error %d", err);
+		LOG_ERR("Unhandled command send error %d", err);
 		nrf_rpc_err(err, NRF_RPC_ERR_SRC_SEND, group, cmd,
 			    NRF_RPC_PACKET_TYPE_CMD);
 	}
@@ -126,7 +129,7 @@ void nrf_rpc_cbor_cmd_rsp_no_err(const struct nrf_rpc_group *group, uint8_t cmd,
 
 	err = nrf_rpc_cbor_cmd_rsp(group, cmd, ctx);
 	if (err < 0) {
-		NRF_RPC_ERR("Unhandled command send error %d", err);
+		LOG_ERR("Unhandled command send error %d", err);
 		nrf_rpc_err(err, NRF_RPC_ERR_SRC_SEND, group, cmd,
 			    NRF_RPC_PACKET_TYPE_CMD);
 	}
@@ -155,7 +158,7 @@ void nrf_rpc_cbor_evt_no_err(const struct nrf_rpc_group *group, uint8_t evt,
 
 	err = nrf_rpc_cbor_evt(group, evt, ctx);
 	if (err < 0) {
-		NRF_RPC_ERR("Unhandled command send error %d", err);
+		LOG_ERR("Unhandled command send error %d", err);
 		nrf_rpc_err(err, NRF_RPC_ERR_SRC_SEND, group, evt,
 			    NRF_RPC_PACKET_TYPE_EVT);
 	}
@@ -183,7 +186,7 @@ void nrf_rpc_cbor_rsp_no_err(struct nrf_rpc_cbor_ctx *ctx)
 
 	err = nrf_rpc_cbor_rsp(ctx);
 	if (err < 0) {
-		NRF_RPC_ERR("Unhandled command send error %d", err);
+		LOG_ERR("Unhandled command send error %d", err);
 		nrf_rpc_err(err, NRF_RPC_ERR_SRC_SEND, NULL, NRF_RPC_ID_UNKNOWN,
 			    NRF_RPC_PACKET_TYPE_RSP);
 	}
