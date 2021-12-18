@@ -17,7 +17,10 @@ target_include_directories(app PRIVATE ../)
 target_include_directories(app PRIVATE ../../nrf_rpc_1/include)
 target_include_directories(app PRIVATE ../../nrf_rpc_2/include)
 
-add_subdirectory(../nrf_rpc_1 build/nrf_rpc_1)
-add_subdirectory(../nrf_rpc_2 build/nrf_rpc_2)
+set(nrf_rpc_1_base   ${CMAKE_CURRENT_SOURCE_DIR}/../nrf_rpc_1)
+set(nrf_rpc_2_base   ${CMAKE_CURRENT_SOURCE_DIR}/../nrf_rpc_2)
+
+add_subdirectory(${nrf_rpc_1_base} build/nrf_rpc_1)
+add_subdirectory(${nrf_rpc_2_base} build/nrf_rpc_2)
 
 # zephyr_compile_options(-save-temps)
