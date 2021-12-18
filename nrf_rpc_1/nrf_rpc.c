@@ -68,7 +68,7 @@ static uint8_t group_count;
 /* Error handler provided to the init function. */
 static nrf_rpc_err_handler_t global_err_handler;
 
-/* Array with all defiend groups */
+/* Array with all defined groups */
 NRF_RPC_AUTO_ARR(nrf_rpc_groups_array, "grp");
 
 /* ======================== Common utilities ======================== */
@@ -89,7 +89,7 @@ static struct nrf_rpc_cmd_ctx *cmd_ctx_alloc(void)
 
 	nrf_rpc_os_tls_set(ctx);
 
-	LOG_INF("Command context %d allocated", ctx->id);
+	LOG_DBG("Command context %d allocated", ctx->id);
 
 	return ctx;
 }
@@ -203,7 +203,7 @@ static int simple_send(uint8_t dst, uint8_t type, uint8_t id, uint8_t group_id,
 		memcpy(&tx_buf[_NRF_RPC_HEADER_SIZE], packet, len);
 	}
 
-	LOG_HEXDUMP_INF(tx_buf, _NRF_RPC_HEADER_SIZE + len, "TX buffer");  // robin
+	//LOG_HEXDUMP_INF(tx_buf, _NRF_RPC_HEADER_SIZE + len, "TX buffer");
 
 	return nrf_rpc_tr_send(tx_buf, _NRF_RPC_HEADER_SIZE + len);
 }
@@ -253,7 +253,6 @@ static void handler_execute(uint8_t id, const uint8_t *packet, size_t len,
 /* Search for a group based on group_id */
 static const struct nrf_rpc_group *group_from_id(uint8_t group_id)
 {
-	LOG_INF("%s: 0x%x", __func__, group_id);
 	if (group_id >= group_count) {
 		return NULL;
 	}
@@ -284,7 +283,7 @@ static uint8_t parse_incoming_packet(struct nrf_rpc_cmd_ctx *cmd_ctx,
 		 * unknown, so ASSERT is enough.
 		 */
 		NRF_RPC_ASSERT(cmd_ctx != NULL);
-		LOG_INF("Response received");
+		LOG_DBG("Response received");
 		return hdr.type;
 	}
 
@@ -300,7 +299,7 @@ static uint8_t parse_incoming_packet(struct nrf_rpc_cmd_ctx *cmd_ctx,
 			cmd_ctx = allocated_ctx;
 		}
 		cmd_ctx->remote_id = hdr.src;
-		LOG_INF("Executing command 0x%02X from group 0x%02X",
+		LOG_DBG("Executing command 0x%02X from group 0x%02X",
 			    hdr.id, *group->group_id);
 		handler_execute(hdr.id, &packet[_NRF_RPC_HEADER_SIZE],
 				len - _NRF_RPC_HEADER_SIZE, group->cmd_array,
@@ -312,7 +311,7 @@ static uint8_t parse_incoming_packet(struct nrf_rpc_cmd_ctx *cmd_ctx,
 	} else if (hdr.type == NRF_RPC_PACKET_TYPE_EVT) {
 
 		NRF_RPC_ASSERT(cmd_ctx == NULL);
-		LOG_INF("Executing event 0x%02X from group 0x%02X", hdr.id,
+		LOG_DBG("Executing event 0x%02X from group 0x%02X", hdr.id,
 			    *group->group_id);
 		handler_execute(hdr.id, &packet[_NRF_RPC_HEADER_SIZE],
 				len - _NRF_RPC_HEADER_SIZE, group->evt_array,
@@ -351,7 +350,7 @@ static void receive_handler(const uint8_t *packet, size_t len)
 	const struct nrf_rpc_group *group = NULL;
 
 
-	LOG_HEXDUMP_INF(packet, len, "RX packet");  // robin
+	//LOG_HEXDUMP_INF(packet, len, "RX packet");
 
 	err = header_decode(packet, len, &hdr);
 	if (err < 0) {
@@ -373,7 +372,7 @@ static void receive_handler(const uint8_t *packet, size_t len)
 		}
 	}
 
-	LOG_INF("Received %d bytes packet from %d to %d, type 0x%02X, "
+	LOG_DBG("Received %d bytes packet from %d to %d, type 0x%02X, "
 		    "cmd/evt/cnt 0x%02X, grp %d (%s)", len, hdr.src, hdr.dst,
 		    hdr.type, hdr.id, hdr.group_id,
 		    (group != NULL) ? group->strid : "unknown");
@@ -458,7 +457,7 @@ static void receive_handler(const uint8_t *packet, size_t len)
 
 		} else {
 
-			LOG_INF("Groups checksum matching");
+			LOG_DBG("Groups checksum matching");
 
 		}
 		break;
@@ -514,7 +513,7 @@ static void wait_for_response(struct nrf_rpc_cmd_ctx *cmd_ctx,
 
 	NRF_RPC_ASSERT(cmd_ctx != NULL);
 
-	LOG_INF("Waiting for a response");
+	LOG_DBG("Waiting for a response");
 
 	do {
 		nrf_rpc_os_msg_get(&cmd_ctx->recv_msg, &packet, &len);
@@ -588,7 +587,7 @@ int nrf_rpc_cmd_common(const struct nrf_rpc_group *group, uint32_t cmd,
 	cmd_ctx->handler = handler;
 	cmd_ctx->handler_data = handler_data;
 
-	LOG_INF("Sending command 0x%02X from group 0x%02X", cmd,
+	LOG_DBG("Sending command 0x%02X from group 0x%02X", cmd,
 		    *group->group_id);
 
 	err = nrf_rpc_tr_send(full_packet, len + _NRF_RPC_HEADER_SIZE);
@@ -639,7 +638,7 @@ int nrf_rpc_evt(const struct nrf_rpc_group *group, uint8_t evt, uint8_t *packet,
 	hdr.group_id = *group->group_id;
 	header_encode(full_packet, &hdr);
 
-	LOG_INF("Sending event 0x%02X from group 0x%02X", evt,
+	LOG_DBG("Sending event 0x%02X from group 0x%02X", evt,
 		    *group->group_id);
 
 	nrf_rpc_os_remote_reserve();
@@ -685,7 +684,7 @@ int nrf_rpc_rsp(uint8_t *packet, size_t len)
 	hdr.group_id = NRF_RPC_ID_UNKNOWN;
 	header_encode(full_packet, &hdr);
 
-	LOG_INF("Sending response");
+	LOG_DBG("Sending response");
 
 	err = nrf_rpc_tr_send(full_packet, len + _NRF_RPC_HEADER_SIZE);
 
@@ -715,7 +714,7 @@ int nrf_rpc_init(nrf_rpc_err_handler_t err_handler)
 	uint8_t group_id = 0;
 	const char *strid_ptr;
 
-	LOG_INF("Initializing nRF RPC module");
+	LOG_DBG("Initializing nRF RPC module");
 
 	groups_check_sum = 0;
 
@@ -730,7 +729,7 @@ int nrf_rpc_init(nrf_rpc_err_handler_t err_handler)
 		for (strid_ptr = group->strid; *strid_ptr != 0; strid_ptr++) {
 			groups_check_sum += (uint8_t)(*strid_ptr);
 		}
-		LOG_INF("Group '%s' has id %d", group->strid, group_id);
+		LOG_DBG("Group '%s' has id %d", group->strid, group_id);
 		*group->group_id = group_id;
 		group_id++;
 	}
@@ -770,7 +769,7 @@ int nrf_rpc_init(nrf_rpc_err_handler_t err_handler)
 			  (uint8_t *)(&groups_check_sum),
 			  sizeof(groups_check_sum));
 
-	LOG_INF("Done initializing nRF RPC module");
+	LOG_DBG("Done initializing nRF RPC module");
 
 	return err;
 }

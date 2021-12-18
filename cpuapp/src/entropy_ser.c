@@ -112,13 +112,9 @@ int entropy_remote_get(uint8_t *buffer, size_t length)
 		return -NRF_EINVAL;
 	}
 
-	LOG_INF("%s: buffer(%p), length(%d)", __func__, buffer, length);  // robin
-
 	NRF_RPC_CBOR_ALLOC(ctx, CBOR_BUF_SIZE);
 
 	cbor_encode_int(&ctx.encoder, length);
-
-	LOG_INF("entropy_group: %p", &entropy_group);  // robin
 
 	err = nrf_rpc_cbor_cmd(&entropy_group, RPC_COMMAND_ENTROPY_GET, &ctx,
 			       entropy_get_rsp, &result);
@@ -294,24 +290,12 @@ NRF_RPC_CBOR_EVT_DECODER(entropy_group, entropy_get_async_result,
 			 entropy_get_result_handler, NULL);
 
 
-#if 0
 static void err_handler(const struct nrf_rpc_err_report *report)
 {
 	LOG_ERR("nRF RPC error %d ocurred. See nRF RPC logs for more details.",
 	       report->code);
 	k_oops();
 }
-#else
-static void err_handler(const struct nrf_rpc_err_report *report)
-{
-	LOG_ERR("nRF RPC error %d ocurred. See nRF RPC logs for more details.",
-	       report->code);
-	LOG_ERR("spin halt.");
-	while (1) {
-		k_sleep(K_MSEC(2000));
-	}
-}
-#endif
 
 
 static int serialization_init(const struct device *dev)

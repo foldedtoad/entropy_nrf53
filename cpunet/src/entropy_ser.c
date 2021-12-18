@@ -162,24 +162,12 @@ NRF_RPC_CBOR_EVT_DECODER(entropy_group, entropy_get_async,
 			 (void *)CALL_TYPE_ASYNC);
 
 
-#if 0
 static void err_handler(const struct nrf_rpc_err_report *report)
 {
 	LOG_ERR("nRF RPC error %d ocurred. See nRF RPC logs for more details.",
 	       report->code);
 	k_oops();
 }
-#else
-static void err_handler(const struct nrf_rpc_err_report *report)
-{
-	LOG_ERR("nRF RPC error %d ocurred. See nRF RPC logs for more details.",
-	       report->code);
-	LOG_ERR("spin halt.");
-	while (1) {
-		k_sleep(K_MSEC(2000));
-	}
-}
-#endif
 
 
 static int serialization_init(const struct device *dev)

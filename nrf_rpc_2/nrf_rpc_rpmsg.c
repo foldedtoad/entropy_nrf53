@@ -64,7 +64,7 @@ static void event_handler(enum nrf_rpc_event_type event,
 				const uint8_t *buf, size_t length)
 {
 	if (event == NRF_RPC_EVENT_CONNECTED) {
-		LOG_INF("nRF RPC Connected");
+		LOG_DBG("nRF RPC Connected");
 		k_sem_give(&handshake_sem);
 		return;
 	} else if (event != NRF_RPC_EVENT_DATA) {
@@ -73,7 +73,7 @@ static void event_handler(enum nrf_rpc_event_type event,
 
 	NRF_RPC_ASSERT(buf != NULL);
 
-	LOG_HEXDUMP_INF(buf, length, "Received data");
+	LOG_HEXDUMP_DBG(buf, length, "Received data");
 
 	receive_callback(buf, length);
 }
@@ -146,8 +146,8 @@ int nrf_rpc_tr_send(uint8_t *buf, size_t len)
 	int err;
 
 	NRF_RPC_ASSERT(buf != NULL);
-	LOG_INF("Send %u bytes.", len);
-	LOG_HEXDUMP_INF(buf, len, "Data:");
+	LOG_DBG("Send %u bytes.", len);
+	LOG_HEXDUMP_DBG(buf, len, "Data:");
 
 
 	err = rpmsg_service_send(endpoint_id, buf, len);

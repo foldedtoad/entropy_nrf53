@@ -24,7 +24,7 @@ static void result_callback(int result, uint8_t *buffer, size_t length)
 		return;
 	}
 
-	LOG_HEXDUMP_INF(buffer, sizeof(buffer), "");
+	LOG_HEXDUMP_INF(buffer, length, "entropy_remote_get_async");
 }
 
 void main(void)
@@ -39,34 +39,34 @@ void main(void)
 		return;
 	}
 
-	LOG_INF("Remote init send.");
+	LOG_DBG("Remote init send.");
 
 	while (true) {
 		k_sleep(K_MSEC(2000));
 
-		LOG_INF("entropy_remote_get");
+		LOG_DBG("entropy_remote_get");
 		err = entropy_remote_get(buffer, sizeof(buffer));
 		if (err) {
 			LOG_ERR("Entropy remote get failed: %d.", err);
 			continue;
 		}
 
-		LOG_HEXDUMP_INF(buffer, sizeof(buffer), "");
+		LOG_HEXDUMP_INF(buffer, sizeof(buffer), "entropy_remote_get");
 
 		k_sleep(K_MSEC(2000));
 
-		LOG_INF("entropy_remote_get_inline");
+		LOG_DBG("entropy_remote_get_inline");
 		err = entropy_remote_get_inline(buffer, sizeof(buffer));
 		if (err) {
 			LOG_ERR("Entropy remote get failed: %d.", err);
 			continue;
 		}
 
-		LOG_HEXDUMP_INF(buffer, sizeof(buffer), "");
+		LOG_HEXDUMP_INF(buffer, sizeof(buffer), "entropy_remote_get_inline");
 
 		k_sleep(K_MSEC(2000));
 
-		LOG_INF("entropy_remote_get_async");
+		LOG_DBG("entropy_remote_get_async");
 		err = entropy_remote_get_async(sizeof(buffer), result_callback);
 		if (err) {
 			LOG_ERR("Entropy remote get async failed: %d.", err);
@@ -75,7 +75,7 @@ void main(void)
 
 		k_sleep(K_MSEC(2000));
 
-		LOG_INF("entropy_remote_get_cbk");
+		LOG_DBG("entropy_remote_get_cbk");
 		err = entropy_remote_get_cbk(sizeof(buffer), result_callback);
 		if (err) {
 			LOG_ERR("Entropy remote get callback failed: %d.", err);

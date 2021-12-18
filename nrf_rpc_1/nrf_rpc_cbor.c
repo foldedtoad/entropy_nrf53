@@ -59,7 +59,6 @@ int nrf_rpc_cbor_cmd(const struct nrf_rpc_group *group, uint8_t cmd,
 		.decoding_done_required = false,
 	};
 
-	LOG_INF("%s", __func__);  // robin
 	if (cbor_encode_null(&ctx->encoder) != CborNoError) {
 		NRF_RPC_CBOR_DISCARD(*ctx);
 		LOG_ERR("cbor_encode_null failed");
