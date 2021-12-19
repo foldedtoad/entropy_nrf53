@@ -5,7 +5,7 @@ This is a learning example, and is probably too simple for direct use.
 ## Overview
 The basis of this project came from Nordic's [nRF Connect SDK](https://github.com/nrfconnect).
 The various RPC libraries and example code are found in several of these projects.
-This project gathers all these component into one place.
+This project gathers all these components into one place.
 The build system has also be changed to be 'pure' Zephyr based.
 
 ## Dependencies
