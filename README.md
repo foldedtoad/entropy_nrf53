@@ -9,7 +9,7 @@ This project gathers all these component into one place.
 The build system has also be changed to be 'pure' Zephyr based.
 
 ## Dependencies
-* Nordic nRf5340 board (PCA10095)
+* Nordic nRF5340 board (PCA10095)
 * Zephyr V2.7
 
 ## Building
@@ -18,7 +18,6 @@ There Master-side subproject is held in the "cpuapp" directory, while the Remote
 
 It is suggested that you have two terminal shells, each with established Zephyr build environments.
 On shell for "cpuapp" builds and the other for "cpunet" builds.
-
 
 ### CMake Configuring of the Master Side  (build shell "cpuapp")
 ```
@@ -35,7 +34,7 @@ On shell for "cpuapp" builds and the other for "cpunet" builds.
 ### Build-time Configuration Options
 There are various build-time options which can be modified.
 These options can be modified with `make menuconfig` or the equivelant.  
-Foe example for "cpuapp" shell.
+For example, from "cpuapp" shell.
 ```
 > cd cpuapp/build
 > make menuconfig
