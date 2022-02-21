@@ -61,7 +61,24 @@ Do the following in both build shells.
 ## View the Output
 To see the output, you will need to start two serial terminal shells (minicom or putty).
 The nRF5340 board will create three USB-serial ports on your host system.
-Usually the first and third are used for displaying output.
+Usually the first and third are used for displaying output.  
+
+## Note for OSX users (and perhaps others)
+The two binaries (cpuapp and cpunet) will each output log messages to their own terminal shell.  
+It is therefore necessary to determine tty-device and configure the termainal app so that it attaches to correct log stream.
+This is relatively simple: on the nRF5340 board (PCA10095) is a sticker on the Jlink SoC (U2).  
+The bottom line of this sticker contains the 9-digit serial number of the whole nRF5340 chip.  
+The tty-device associated with cpuapp is xxxxxxxxx5 and the tty-device associated with cpunet is xxxxxxxxx1.  
+Below is an example listing.
+
+```
+$ ls -l /dev/tty.usbmodem*
+crw-rw-rw-  1 root   wheel  0x16000008 Feb 21 13:45 /dev/tty.usbmodem0009601036181
+crw-rw-rw-  1 root   wheel  0x1600000a Feb 21 13:45 /dev/tty.usbmodem0009601036183
+crw-rw-rw-  1 root   wheel  0x1600000c Feb 21 13:45 /dev/tty.usbmodem0009601036185
+```
+Now configure the two instances of minicom (or other termainal app) using these full device names. (note the zero padding)  
+The other terminal run parameters are the standard: 115200 8N1
 
 ### Output from "cpuapp" Side (Master side)
 
